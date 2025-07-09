@@ -106,7 +106,8 @@ def webhook():
 
     return "OK"
 
-# ✅ รันบน Railway ต้องใช้ PORT จาก .env
+# ❌ อย่าเรียก app.run() ใน production (Railway ใช้ gunicorn)
+# ✅ แต่ยังคงไว้สำหรับรัน local
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
