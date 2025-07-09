@@ -7,13 +7,17 @@ import os
 from dotenv import load_dotenv
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
+import base64
+import json
 
 # Load env
 load_dotenv()
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
+FIREBASE_SERVICE_BASE64 = os.getenv("FIREBASE_SERVICE")  
 
-# Init Firebase
-cred = credentials.Certificate("firebase_service.json")
+# Init Firebase จาก base64
+firebase_key_dict = json.loads(base64.b64decode(FIREBASE_SERVICE_BASE64))
+cred = credentials.Certificate(firebase_key_dict)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
