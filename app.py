@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template, jsonify # Import render_template and jsonify
 from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -9,7 +9,6 @@ import base64
 import json
 
 # Import students list - assuming 'student.py' exists and contains a 'students' list
-# Example: students = ["สมชาย", "สมหญิง", "มานะ", "ปิติ"]
 from student import students
 
 # Load environment variables from .env file
@@ -36,14 +35,64 @@ except Exception as e:
 # --- Flask Application Initialization ---
 app = Flask(__name__)
 
-# --- Add this new root route ---
+# --- Root Route for Web Check-in Page ---
 @app.route("/", methods=["GET"])
 def home():
     """
-    A simple root route to confirm the Flask app is running.
-    This will display a message when you visit the main domain URL in a browser.
+    Renders the student check-in web page (index.html).
+    Passes the 'students' list to the template for the dropdown.
     """
-    return "LINE Bot Backend is running! Webhook is at /webhook (POST only)."
+    # Render the index.html template and pass the students list to it
+    return render_template("index.html", students=students)
+
+# --- Web Check-in API Endpoint ---
+@app.route("/checkin", methods=["POST"])
+def checkin():
+    """
+    Handles student check-in requests from the web form.
+    Saves the attendance record to Firestore.
+    """
+    data = request.get_json()
+    student_name = data.get("name")
+    student_number = data.get("number")
+
+    if not student_name or not student_number:
+        return jsonify({"error": "กรุณาระบุชื่อและเลขที่นักเรียนให้ครบถ้วน"}), 400
+
+    try:
+        student_number = int(student_number)
+    except ValueError:
+        return jsonify({"error": "เลขที่นักเรียนไม่ถูกต้อง"}), 400
+
+    # Ensure the student number is within the valid range of the 'students' list
+    if not (1 <= student_number <= len(students)):
+        return jsonify({"error": "เลขที่นักเรียนไม่อยู่ในรายชื่อ"}), 400
+
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    
+    # Reference to the attendance document for today's date and specific student
+    # Using student_number as document ID for easy lookup and to prevent duplicates for the same student on the same day
+    attendance_doc_ref = db.collection("attendances").document(date_str).collection("users").document(str(student_number))
+
+    try:
+        # Check if the student has already checked in today
+        doc = attendance_doc_ref.get()
+        if doc.exists:
+            return jsonify({"error": f"นักเรียนเลขที่ {student_number} - {student_name} ได้เช็คชื่อไปแล้ววันนี้"}), 409 # 409 Conflict
+
+        # Save the attendance record
+        attendance_doc_ref.set({
+            "name": student_name,
+            "number": student_number,
+            "timestamp": firestore.SERVER_TIMESTAMP # Use server timestamp for accuracy
+        })
+        print(f"Student {student_name} (No. {student_number}) checked in successfully for {date_str}.")
+        return jsonify({"message": f"✅ เช็คชื่อนักเรียนเลขที่ {student_number} - {student_name} สำเร็จแล้ว"}), 200
+
+    except Exception as e:
+        print(f"Error during check-in for {student_name} (No. {student_number}): {e}")
+        return jsonify({"error": "เกิดข้อผิดพลาดในการเช็คชื่อ กรุณาลองใหม่"}), 500
+
 
 # --- LINE Messaging Functions ---
 
