@@ -31,10 +31,16 @@ app = Flask(__name__)
 # Home Page - List all attendance dates and show check-in form
 @app.route("/")
 def index():
-    attendance_docs = db.collection("attendances").stream()
-    date_list = [doc.id for doc in attendance_docs]
-    date_list.sort(reverse=True)
-    # *** แก้ไข: ส่ง students=students ไปยัง template ด้วย ***
+    print("DEBUG: index() function called.") # <--- เพิ่มบรรทัดนี้
+    date_list = [] # กำหนดให้ date_list เป็นลิสต์ว่างเปล่าเริ่มต้น
+    try:
+        attendance_docs = db.collection("attendances").stream()
+        date_list = [doc.id for doc in attendance_docs]
+        date_list.sort(reverse=True)
+        print(f"Fetched dates: {date_list}") # บรรทัดนี้
+    except Exception as e:
+        print(f"Error fetching attendance dates from Firestore: {e}")
+    
     return render_template("index.html", dates=date_list, students=students)
 
 # Attendance Detail Page
@@ -53,9 +59,6 @@ def report_detail(date_str):
             checked.append({"number": number, "name": name})
             checked_numbers.add(number)
 
-    # *** แก้ไข: ปรับปรุงการคำนวณนักเรียนที่ขาดเรียนให้ถูกต้อง ***
-    # วนลูปจาก 0 ถึง len(students)-1 เพื่อเข้าถึง index ของลิสต์ students
-    # และใช้ i + 1 เพื่อให้ได้เลขที่นักเรียนที่ถูกต้อง
     absent = [
         {"number": i + 1, "name": students[i]}
         for i in range(len(students))
