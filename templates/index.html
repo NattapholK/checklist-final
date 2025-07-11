@@ -214,8 +214,8 @@
           result.textContent = data.message;
           result.style.color = "green";
           form.reset();
-          // Optional: Reload the page or update the report list dynamically after successful check-in
-          // window.location.reload();
+          // *** สำคัญ: เพิ่มการรีโหลดหน้าหลังจากเช็คอินสำเร็จ เพื่อให้ดึงข้อมูลรายงานล่าสุดมาแสดง ***
+          window.location.reload(); 
         } else {
           result.textContent = data.error;
           result.style.color = "red";

@@ -11,7 +11,7 @@ from student import students # ตรวจสอบให้แน่ใจว�
 
 load_dotenv()
 
-LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
+LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN"
 FIREBASE_SERVICE_BASE64 = os.getenv("FIREBASE_SERVICE")
 
 # Initialize Firebase
@@ -31,13 +31,22 @@ app = Flask(__name__)
 # Home Page - List all attendance dates and show check-in form
 @app.route("/")
 def index():
-    print("DEBUG: index() function called.") # <--- เพิ่มบรรทัดนี้
-    date_list = [] # กำหนดให้ date_list เป็นลิสต์ว่างเปล่าเริ่มต้น
+    print("DEBUG: index() function called.")
+    date_list = []
     try:
-        attendance_docs = db.collection("attendances").stream()
-        date_list = [doc.id for doc in attendance_docs]
+        print("DEBUG: Attempting to stream attendances collection.")
+        # ดึงเอกสารทั้งหมดจากคอลเลกชัน "attendances"
+        # เพิ่ม .get() เพื่อให้แน่ใจว่าได้ข้อมูลมาทันที
+        attendance_docs = db.collection("attendances").get() 
+        
+        docs_count = 0
+        for doc in attendance_docs:
+            docs_count += 1
+            date_list.append(doc.id)
+        
         date_list.sort(reverse=True)
-        print(f"Fetched dates: {date_list}") # บรรทัดนี้
+        print(f"DEBUG: Number of docs from stream (after .get()): {docs_count}")
+        print(f"Fetched dates: {date_list}")
     except Exception as e:
         print(f"Error fetching attendance dates from Firestore: {e}")
     
@@ -86,14 +95,20 @@ def checkin():
         return jsonify({"error": "เลขที่นักเรียนไม่อยู่ในรายชื่อ"}), 400
 
     date_str = datetime.now().strftime("%Y-%m-%d")
-    attendance_doc_ref = db.collection("attendances").document(date_str).collection("users").document(str(student_number))
+    # อ้างอิงถึงเอกสารวันที่หลักด้วย เพื่อให้แน่ใจว่าเอกสารวันที่ถูกสร้างขึ้น
+    attendance_date_doc_ref = db.collection("attendances").document(date_str)
+    attendance_user_doc_ref = attendance_date_doc_ref.collection("users").document(str(student_number))
 
     try:
-        doc = attendance_doc_ref.get()
+        doc = attendance_user_doc_ref.get()
         if doc.exists:
             return jsonify({"error": f"นักเรียนเลขที่ {student_number} - {student_name} ได้เช็คชื่อไปแล้ววันนี้"}), 409
 
-        attendance_doc_ref.set({
+        # สร้างเอกสารวันที่หลักก่อน หากยังไม่มี (เป็นเพียงการตั้งค่าเปล่าๆ)
+        # เพื่อให้แน่ใจว่าเอกสารวันที่นั้นมีอยู่จริงและสามารถถูก stream ได้
+        attendance_date_doc_ref.set({}, merge=True) # ใช้ merge=True เพื่อไม่ให้เขียนทับข้อมูลเดิมหากมี
+
+        attendance_user_doc_ref.set({
             "name": student_name,
             "number": student_number,
             "timestamp": firestore.SERVER_TIMESTAMP
