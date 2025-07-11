@@ -11,7 +11,8 @@ from student import students # ตรวจสอบให้แน่ใจว�
 
 load_dotenv()
 
-LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN"
+# แก้ไข: เพิ่มวงเล็บปิด ) ที่ท้ายบรรทัดนี้
+LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
 FIREBASE_SERVICE_BASE64 = os.getenv("FIREBASE_SERVICE")
 
 # Initialize Firebase
