@@ -2,51 +2,145 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <title>เช็คชื่อนักเรียน</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เช็คชื่อนักเรียน & รายงาน</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      font-family: sans-serif;
-      background-color: #f5f5f5;
+    /* Custom CSS for body and container - using Tailwind for most, but some specifics here */
+    body {
+      font-family: 'Inter', sans-serif; /* ใช้ฟอนต์ Inter หรือตามที่คุณต้องการ */
+      background-color: #f0f2f5; /* สีพื้นหลังอ่อนๆ */
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start; /* จัดให้อยู่ด้านบนเพื่อการเลื่อนที่ดีขึ้น */
+      min-height: 100vh;
+      padding: 2rem;
+      box-sizing: border-box;
     }
 
     .container {
       background: white;
-      padding: 40px 60px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem; /* ปรับจาก 40px 60px */
+      border-radius: 1rem; /* ปรับจาก 12px */
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* ปรับเงา */
       text-align: center;
-      max-width: 400px;
+      width: 100%; /* ทำให้ responsive */
+      max-width: 600px; /* ความกว้างสูงสุด */
     }
 
     .school-logo {
       width: 100px;
       height: auto;
-      margin-bottom: 20px;
-      border-radius: 8px;
+      margin-bottom: 1.5rem; /* ปรับจาก 20px */
+      border-radius: 0.5rem; /* ปรับจาก 8px */
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     }
 
     h1 {
       color: #333;
-      margin-bottom: 20px;
+      margin-bottom: 1.5rem; /* ปรับจาก 20px */
+      font-size: 2.25rem; /* Tailwind h1 size */
+      font-weight: 700;
     }
 
+    /* Styles for form elements */
     select, button {
       font-size: 1rem;
-      padding: 8px;
-      margin-top: 10px;
+      padding: 0.75rem; /* ปรับจาก 8px */
+      margin-top: 0.75rem; /* ปรับจาก 10px */
       width: 100%;
       max-width: 300px;
+      border-radius: 0.5rem; /* เพิ่มขอบโค้ง */
+      border: 1px solid #cbd5e0; /* เพิ่มขอบ */
+    }
+
+    button {
+      background-color: #4299e1; /* สีฟ้า */
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #3182ce; /* สีฟ้าเข้มขึ้นเมื่อโฮเวอร์ */
+    }
+
+    button[type="reset"] {
+      background-color: #a0aec0; /* สีเทา */
+    }
+
+    button[type="reset"]:hover {
+      background-color: #718096; /* สีเทาเข้มขึ้นเมื่อโฮเวอร์ */
     }
 
     #result {
-      margin-top: 20px;
+      margin-top: 1.5rem; /* ปรับจาก 20px */
       font-weight: bold;
+      font-size: 1.125rem;
+    }
+
+    /* Styles for report list section */
+    .report-section {
+      margin-top: 3rem; /* ระยะห่างจากส่วนบน */
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0; /* เส้นคั่น */
+    }
+
+    .report-section h2 {
+      color: #333;
+      margin-bottom: 1.5rem;
+      font-size: 1.75rem; /* Tailwind h2 size */
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .report-list ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .report-list li {
+      background-color: #edf2f7; /* สีพื้นหลังของแต่ละรายการ */
+      margin-bottom: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-radius: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+
+    .report-list li:hover {
+      background-color: #e2e8f0;
+      transform: translateY(-2px);
+    }
+
+    .report-list a {
+      color: #2b6cb0;
+      text-decoration: none;
+      font-weight: 600;
+      flex-grow: 1;
+      text-align: left;
+    }
+
+    .report-list a:hover {
+      text-decoration: underline;
+    }
+
+    .view-report-button {
+      background-color: #4299e1;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    .view-report-button:hover {
+      background-color: #3182ce;
     }
   </style>
 </head>
@@ -56,19 +150,39 @@
     <img src="/static/ImageDebsirin.png" alt="โรงเรียนเทพศิรินทร์" class="school-logo" />
     <h1>✅ เช็คชื่อนักเรียน ม.6/2</h1>
 
+    <!-- Check-in Form Section -->
     <form id="checkin-form">
-      <label for="student">เลือกชื่อนักเรียน:</label><br />
-      <select id="student" required>
-        <option value=""> กรุณาเลือกชื่อ(ถ้ามาแล้วห้ามsubmitชื่อซ้ำ) --</option>
+      <label for="student" class="block text-gray-700 text-sm font-bold mb-2">เลือกชื่อนักเรียน:</label>
+      <select id="student" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <option value="">-- กรุณาเลือกชื่อ (ถ้ามาแล้วห้าม submit ชื่อซ้ำ) --</option>
         {% for name in students %}
           <option value="{{ loop.index }}|{{ name }}">{{ loop.index }} - {{ name }}</option>
         {% endfor %}
-      </select><br /><br />
-      <button type="submit">ส่งข้อมูล</button>
-      <button type="reset">ล้างข้อมูล</button>
+      </select>
+      <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">ส่งข้อมูล</button>
+      <button type="reset" class="mt-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">ล้างข้อมูล</button>
     </form>
 
-    <div id="result"></div>
+    <div id="result" class="mt-4 text-lg"></div>
+
+    <!-- Attendance Report List Section -->
+    <div class="report-section">
+        <h2 class="text-2xl">📋 รายงานการเช็คชื่อย้อนหลัง</h2>
+        {% if dates %}
+        <div class="report-list">
+            <ul>
+                {% for date in dates %}
+                <li>
+                    <a href="/report/{{ date }}" class="text-lg">{{ date }}</a>
+                    <a href="/report/{{ date }}" class="view-report-button">ดูรายงาน</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <p class="text-gray-600">ยังไม่มีรายงานการเช็คชื่อย้อนหลัง</p>
+        {% endif %}
+    </div>
   </div>
 
   <script>
@@ -100,6 +214,8 @@
           result.textContent = data.message;
           result.style.color = "green";
           form.reset();
+          // Optional: Reload the page or update the report list dynamically after successful check-in
+          // window.location.reload();
         } else {
           result.textContent = data.error;
           result.style.color = "red";
