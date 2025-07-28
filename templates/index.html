@@ -4,16 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>เช็คชื่อนักเรียน & รายงาน</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Custom CSS for body and container - using Tailwind for most, but some specifics here */
     body {
-      font-family: 'Inter', sans-serif; /* ใช้ฟอนต์ Inter หรือตามที่คุณต้องการ */
-      background-color: #f0f2f5; /* สีพื้นหลังอ่อนๆ */
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f2f5;
       display: flex;
       justify-content: center;
-      align-items: flex-start; /* จัดให้อยู่ด้านบนเพื่อการเลื่อนที่ดีขึ้น */
+      align-items: flex-start;
       min-height: 100vh;
       padding: 2rem;
       box-sizing: border-box;
@@ -21,42 +19,66 @@
 
     .container {
       background: white;
-      padding: 2.5rem; /* ปรับจาก 40px 60px */
-      border-radius: 1rem; /* ปรับจาก 12px */
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* ปรับเงา */
+      padding: 2.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       text-align: center;
-      width: 100%; /* ทำให้ responsive */
-      max-width: 600px; /* ความกว้างสูงสุด */
+      width: 100%;
+      max-width: 600px;
     }
 
-    .school-logo {
+    /* Logo split effect */
+    #logo-animated {
       width: 100px;
       height: auto;
-      margin-bottom: 1.5rem; /* ปรับจาก 20px */
-      border-radius: 0.5rem; /* ปรับจาก 8px */
+      margin-bottom: 1.5rem;
+      border-radius: 0.5rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s forwards;
+      animation-delay: 0.3s;
     }
 
-    h1 {
+    /* Split Text Styles */
+    .split-text {
+      font-size: 3rem;
+      font-weight: 800;
       color: #333;
-      margin-bottom: 1.5rem; /* ปรับจาก 20px */
-      font-size: 2.25rem; /* Tailwind h1 size */
-      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      line-height: 1.2;
     }
 
-    /* Styles for form elements */
+    .split-text span {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s forwards;
+      animation-delay: calc(var(--i) * 0.05s);
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     select, button {
       font-size: 1rem;
-      padding: 0.75rem; /* ปรับจาก 8px */
-      margin-top: 0.75rem; /* ปรับจาก 10px */
+      padding: 0.75rem;
+      margin-top: 0.75rem;
       width: 100%;
       max-width: 300px;
-      border-radius: 0.5rem; /* เพิ่มขอบโค้ง */
-      border: 1px solid #cbd5e0; /* เพิ่มขอบ */
+      border-radius: 0.5rem;
+      border: 1px solid #cbd5e0;
     }
 
     button {
-      background-color: #4299e1; /* สีฟ้า */
+      background-color: #4299e1;
       color: white;
       font-weight: 600;
       cursor: pointer;
@@ -64,36 +86,27 @@
     }
 
     button[type="submit"]:hover {
-      background-color: #3182ce; /* สีฟ้าเข้มขึ้นเมื่อโฮเวอร์ */
+      background-color: #3182ce;
     }
 
     button[type="reset"] {
-      background-color: #a0aec0; /* สีเทา */
+      background-color: #a0aec0;
     }
 
     button[type="reset"]:hover {
-      background-color: #718096; /* สีเทาเข้มขึ้นเมื่อโฮเวอร์ */
+      background-color: #718096;
     }
 
     #result {
-      margin-top: 1.5rem; /* ปรับจาก 20px */
+      margin-top: 1.5rem;
       font-weight: bold;
       font-size: 1.125rem;
     }
 
-    /* Styles for report list section */
     .report-section {
-      margin-top: 3rem; /* ระยะห่างจากส่วนบน */
+      margin-top: 3rem;
       padding-top: 2rem;
-      border-top: 1px solid #e2e8f0; /* เส้นคั่น */
-    }
-
-    .report-section h2 {
-      color: #333;
-      margin-bottom: 1.5rem;
-      font-size: 1.75rem; /* Tailwind h2 size */
-      font-weight: 700;
-      text-align: left;
+      border-top: 1px solid #e2e8f0;
     }
 
     .report-list ul {
@@ -103,7 +116,7 @@
     }
 
     .report-list li {
-      background-color: #edf2f7; /* สีพื้นหลังของแต่ละรายการ */
+      background-color: #edf2f7;
       margin-bottom: 0.75rem;
       padding: 1rem 1.5rem;
       border-radius: 0.75rem;
@@ -147,10 +160,10 @@
 <body>
 
   <div class="container">
-    <img src="/static/ImageDebsirin.png" alt="โรงเรียนเทพศิรินทร์" class="school-logo" />
-    <h1>✅ เช็คชื่อนักเรียน ม.6/2</h1>
+    <img src="/static/ImageDebsirin.png" alt="โรงเรียนเทพศิรินทร์" id="logo-animated" />
 
-    <!-- Check-in Form Section -->
+    <h1 id="animated-title" class="split-text"></h1>
+
     <form id="checkin-form">
       <label for="student" class="block text-gray-700 text-sm font-bold mb-2">เลือกชื่อนักเรียน:</label>
       <select id="student" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -165,26 +178,41 @@
 
     <div id="result" class="mt-4 text-lg"></div>
 
-    <!-- Attendance Report List Section -->
     <div class="report-section">
-        <h2 class="text-2xl">📋 รายงานการเช็คชื่อย้อนหลัง</h2>
-        {% if dates %}
-        <div class="report-list">
-            <ul>
-                {% for date in dates %}
-                <li>
-                    <a href="/report/{{ date }}" class="text-lg">{{ date }}</a>
-                    <a href="/report/{{ date }}" class="view-report-button">ดูรายงาน</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% else %}
-        <p class="text-gray-600">ยังไม่มีรายงานการเช็คชื่อย้อนหลัง</p>
-        {% endif %}
+      <h2 id="animated-subtitle" class="split-text text-2xl"></h2>
+
+      {% if dates %}
+      <div class="report-list">
+        <ul>
+          {% for date in dates %}
+          <li>
+            <a href="/report/{{ date }}" class="text-lg">{{ date }}</a>
+            <a href="/report/{{ date }}" class="view-report-button">ดูรายงาน</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% else %}
+      <p class="text-gray-600">ยังไม่มีรายงานการเช็คชื่อย้อนหลัง</p>
+      {% endif %}
     </div>
   </div>
 
+  <!-- Split Text Animation -->
+  <script>
+    const animateText = (elementId, text) => {
+      const element = document.getElementById(elementId);
+      element.innerHTML = [...text].map((char, i) => {
+        if (char === " ") return "&nbsp;";
+        return `<span style="--i:${i}">${char}</span>`;
+      }).join("");
+    };
+
+    animateText("animated-title", "Checklist Student M.6/2");
+    animateText("animated-subtitle", "Attendance Report History");
+  </script>
+
+  <!-- Check-in Script -->
   <script>
     const form = document.getElementById('checkin-form');
     const result = document.getElementById('result');
@@ -214,8 +242,7 @@
           result.textContent = data.message;
           result.style.color = "green";
           form.reset();
-          // *** สำคัญ: เพิ่มการรีโหลดหน้าหลังจากเช็คอินสำเร็จ เพื่อให้ดึงข้อมูลรายงานล่าสุดมาแสดง ***
-          window.location.reload(); 
+          window.location.reload();
         } else {
           result.textContent = data.error;
           result.style.color = "red";
