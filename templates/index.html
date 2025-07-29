@@ -4,194 +4,109 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>เช็คชื่อนักเรียน & รายงาน</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts - Inter for a modern, clean look -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    /* Global Styles for Inter font */
     body {
       font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden; /* Prevent horizontal scroll */
-      background: linear-gradient(to bottom right, #1A1A1A, #000000); /* Dark, subtle gradient background */
-      color: #E0E0E0; /* Light gray text for dark background */
+      background-color: #f0f2f5;
       display: flex;
       justify-content: center;
-      align-items: flex-start; /* Align to top */
+      align-items: flex-start;
       min-height: 100vh;
       padding: 2rem;
-      box-sizing: border;
+      box-sizing: border-box;
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-        background: #2a2a2a;
-        border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #6a00ff; /* Purple accent */
-        border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: #8a2be2; /* Lighter purple on hover */
-    }
-
-    /* Main Container Styling */
     .container {
-      background: rgba(255, 255, 255, 0.05); /* Subtle translucent background */
-      backdrop-filter: blur(15px); /* Frosted glass effect */
-      -webkit-backdrop-filter: blur(15px); /* For Safari */
+      background: white;
       padding: 2.5rem;
-      border-radius: 1.5rem; /* More rounded corners */
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset; /* Deeper shadow with inner border */
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       text-align: center;
       width: 100%;
-      max-width: 650px; /* Slightly wider for better content flow */
-      border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+      max-width: 600px;
     }
 
-    /* Logo Animation (GSAP controlled) */
+    /* Logo split effect */
     #logo-animated {
-      width: 120px; /* Slightly larger logo */
+      width: 100px;
       height: auto;
-      margin-bottom: 0.5rem; /* Reduced margin to bring text closer */
-      border-radius: 0.75rem;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-      opacity: 0; /* Start hidden for GSAP animation */
-      transform: translateY(30px) scale(0.9); /* Start slightly smaller and lower */
+      margin-bottom: 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s forwards;
+      animation-delay: 0.3s;
     }
 
-    /* Split Text Styles (GSAP controlled) */
-    .split-text-gsap {
-      font-size: 3.5rem; /* Larger title */
-      font-weight: 900; /* Extra bold */
-      color: #FFFFFF; /* White text */
-      margin-bottom: 2rem;
+    /* Split Text Styles */
+    .split-text {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #333;
+      margin-bottom: 1.5rem;
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      line-height: 1.1;
-      text-shadow: 0 0 15px rgba(106, 0, 255, 0.5); /* Subtle glow */
+      line-height: 1.2;
     }
 
-    .split-text-gsap span {
+    .split-text span {
       display: inline-block;
-      opacity: 0; /* Start hidden for GSAP animation */
-      transform: translateY(30px); /* Start lower */
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s forwards;
+      animation-delay: calc(var(--i) * 0.05s);
     }
 
-    .split-text-subtitle {
-        font-size: 2rem; /* Subtitle size */
-        font-weight: 700;
-        color: #B0B0B0; /* Lighter gray for subtitle */
-        margin-top: 2rem;
-        margin-bottom: 1.5rem;
-        text-shadow: 0 0 10px rgba(106, 0, 255, 0.3);
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    /* Logo Caption Style */
-    .logo-caption {
-        font-size: 1.25rem; /* Size for the text under the logo */
-        font-weight: 600;
-        color: #B0B0B0;
-        margin-bottom: 2rem; /* Spacing after the caption */
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        line-height: 1.2;
-    }
-    .logo-caption span {
-        display: inline-block;
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-
-    /* Form Elements */
-    select, input[type="email"] {
-      font-size: 1.1rem;
-      padding: 0.9rem;
-      margin-top: 1rem;
+    select, button {
+      font-size: 1rem;
+      padding: 0.75rem;
+      margin-top: 0.75rem;
       width: 100%;
-      max-width: 400px; /* Wider inputs */
-      border-radius: 0.75rem; /* More rounded */
-      border: 1px solid #4A4A4A; /* Darker border */
-      background-color: #2A2A2A; /* Dark background for inputs */
-      color: #E0E0E0;
-      transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      max-width: 300px;
+      border-radius: 0.5rem;
+      border: 1px solid #cbd5e0;
     }
 
-    select:focus, input[type="email"]:focus {
-      outline: none;
-      border-color: #8A2BE2; /* Purple focus glow */
-      box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.4); /* Outer glow */
-    }
-
-    /* Buttons */
     button {
-      font-size: 1.1rem;
-      padding: 0.9rem 1.8rem;
-      margin-top: 1.2rem;
-      width: 100%;
-      max-width: 400px;
-      border-radius: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease-in-out;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      border: none; /* Remove default border */
-    }
-
-    button[type="submit"] {
-      background: linear-gradient(to right, #6A00FF, #8A2BE2); /* Purple gradient */
+      background-color: #4299e1;
       color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
     }
 
     button[type="submit"]:hover {
-      background: linear-gradient(to right, #8A2BE2, #6A00FF); /* Reverse gradient on hover */
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 20px rgba(106, 0, 255, 0.4);
+      background-color: #3182ce;
     }
 
     button[type="reset"] {
-      background-color: #4A4A4A; /* Dark gray */
-      color: #E0E0E0;
+      background-color: #a0aec0;
     }
 
     button[type="reset"]:hover {
-      background-color: #6A6A6A;
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 20px rgba(74, 74, 74, 0.4);
+      background-color: #718096;
     }
 
     #result {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       font-weight: bold;
-      font-size: 1.25rem; /* Larger result text */
-      transition: all 0.4s ease-in-out; /* Smooth transition for result message */
-      opacity: 0; /* Start hidden for GSAP */
-      transform: translateY(20px);
-    }
-
-    .result-success {
-        color: #4CAF50; /* Green for success */
-        text-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
-    }
-
-    .result-error {
-        color: #F44336; /* Red for error */
-        text-shadow: 0 0 10px rgba(244, 67, 54, 0.4);
+      font-size: 1.125rem;
     }
 
     .report-section {
-      margin-top: 3.5rem;
-      padding-top: 2.5rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0;
     }
 
     .report-list ul {
@@ -201,199 +116,104 @@
     }
 
     .report-list li {
-      background-color: rgba(255, 255, 255, 0.08); /* Slightly lighter translucent background */
-      margin-bottom: 0.9rem; /* More spacing */
-      padding: 1.2rem 1.8rem;
-      border-radius: 1rem; /* More rounded */
+      background-color: #edf2f7;
+      margin-bottom: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-radius: 0.75rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      opacity: 0; /* Start hidden for GSAP */
-      transform: translateY(30px);
+      transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
     }
 
     .report-list li:hover {
-      background-color: rgba(255, 255, 255, 0.15); /* More opaque on hover */
-      transform: translateY(-5px) scale(1.01); /* Lift more on hover */
-      box-shadow: 0 10px 25px rgba(106, 0, 255, 0.3); /* Purple glow shadow */
+      background-color: #e2e8f0;
+      transform: translateY(-2px);
     }
 
     .report-list a {
-      color: #A0A0A0; /* Lighter gray for links */
+      color: #2b6cb0;
       text-decoration: none;
       font-weight: 600;
       flex-grow: 1;
       text-align: left;
-      font-size: 1.15rem; /* Slightly larger link text */
-      transition: color 0.3s ease-in-out;
     }
 
     .report-list a:hover {
-      color: #6A00FF; /* Purple on hover */
       text-decoration: underline;
-      text-underline-offset: 4px;
-      text-decoration-thickness: 2px;
     }
 
     .view-report-button {
-      background: linear-gradient(to right, #4299e1, #63b3ed); /* Blue gradient */
+      background-color: #4299e1;
       color: white;
-      padding: 0.6rem 1.2rem;
-      border-radius: 0.6rem;
-      font-weight: 600;
-      transition: all 0.3s ease-in-out;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      transition: background-color 0.2s ease-in-out;
     }
 
     .view-report-button:hover {
-      background: linear-gradient(to right, #63b3ed, #4299e1); /* Reverse gradient on hover */
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 5px 15px rgba(66, 153, 225, 0.4);
-    }
-
-    .no-report-text {
-        color: #808080;
-        font-style: italic;
-        margin-top: 1.5rem;
+      background-color: #3182ce;
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- Logo - Ensure the path is correct for your static files -->
-    <img src="/static/ImageDebsirin.png" alt="โรงเรียนเทพศิรินทร์" id="logo-animated" class="mx-auto block" />
+    <img src="/static/ImageDebsirin.png" alt="โรงเรียนเทพศิรินทร์" id="logo-animated" />
 
-    <!-- Logo Caption with Split Text Animation -->
-    <p id="logo-caption-animated" class="logo-caption"></p>
-
-    <!-- Animated Title -->
-    <h1 id="animated-title" class="split-text-gsap"></h1>
+    <h1 id="animated-title" class="split-text"></h1>
 
     <form id="checkin-form">
-      <label for="student" class="block text-gray-400 text-base font-medium mb-2 text-left">เลือกชื่อนักเรียน:</label>
-      <select id="student" required class="shadow-lg focus:ring-purple-500 focus:border-purple-500">
+      <label for="student" class="block text-gray-700 text-sm font-bold mb-2">เลือกชื่อนักเรียน:</label>
+      <select id="student" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         <option value="">-- กรุณาเลือกชื่อ (ถ้ามาแล้วห้าม submit ชื่อซ้ำ) --</option>
         {% for name in students %}
           <option value="{{ loop.index }}|{{ name }}">{{ loop.index }} - {{ name }}</option>
         {% endfor %}
       </select>
-      <button type="submit" class="mt-6">ส่งข้อมูล</button>
-      <button type="reset" class="mt-4">ล้างข้อมูล</button>
+      <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">ส่งข้อมูล</button>
+      <button type="reset" class="mt-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">ล้างข้อมูล</button>
     </form>
 
-    <div id="result" class="mt-4"></div>
+    <div id="result" class="mt-4 text-lg"></div>
 
     <div class="report-section">
-      <!-- Animated Subtitle -->
-      <h2 id="animated-subtitle" class="split-text-gsap split-text-subtitle"></h2>
+      <h2 id="animated-subtitle" class="split-text text-2xl"></h2>
 
       {% if dates %}
       <div class="report-list">
         <ul>
           {% for date in dates %}
-          <li class="report-item">
-            <a href="/report/{{ date }}">{{ date }}</a>
+          <li>
+            <a href="/report/{{ date }}" class="text-lg">{{ date }}</a>
             <a href="/report/{{ date }}" class="view-report-button">ดูรายงาน</a>
           </li>
           {% endfor %}
         </ul>
       </div>
       {% else %}
-      <p class="no-report-text">ยังไม่มีรายงานการเช็คชื่อย้อนหลัง</p>
+      <p class="text-gray-600">ยังไม่มีรายงานการเช็คชื่อย้อนหลัง</p>
       {% endif %}
     </div>
   </div>
 
-  <!-- GSAP and ScrollTrigger CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
-
+  <!-- Split Text Animation -->
   <script>
-    // Ensure GSAP plugins are registered
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Function to animate text using GSAP SplitText-like effect
-    const animateTextWithGSAP = (elementId, text, delayOffset = 0) => {
+    const animateText = (elementId, text) => {
       const element = document.getElementById(elementId);
-      if (!element) return; // Guard against element not found
-
-      // Clear existing content and prepare for split
-      element.innerHTML = '';
-      const chars = text.split('');
-
-      chars.forEach((char, i) => {
-        const span = document.createElement('span');
-        span.textContent = char === ' ' ? '\u00A0' : char; // Use non-breaking space for spaces
-        element.appendChild(span);
-
-        gsap.from(span, {
-          opacity: 0,
-          y: 30,
-          rotationX: -90,
-          duration: 0.6,
-          ease: 'power3.out',
-          delay: delayOffset + (i * 0.04), // Staggered delay for each character
-        });
-      });
+      element.innerHTML = [...text].map((char, i) => {
+        if (char === " ") return "&nbsp;";
+        return `<span style="--i:${i}">${char}</span>`;
+      }).join("");
     };
 
-    // Wait for the entire window to load before running animations and scripts
-    window.onload = function() {
-        // Initial animations for logo and titles
-        gsap.to('#logo-animated', { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out' });
-        // Animate the new logo caption text
-        animateTextWithGSAP("logo-caption-animated", "โรงเรียนเทพศิรินทร์", 0.2); // Delay slightly after logo
-        animateTextWithGSAP("animated-title", "Checklist Student M.6/2", 0.6); // Adjust delay for main title
-        animateTextWithGSAP("animated-subtitle", "Attendance Report History", 0.9); // Adjust delay for subtitle
+    animateText("animated-title", "Checklist Student M.6/2");
+    animateText("animated-subtitle", "Attendance Report History");
+  </script>
 
-        // --- Result Message Animation ---
-        const resultDiv = document.getElementById('result');
-        const originalSetTextContent = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'textContent').set;
-
-        // Override textContent setter to trigger GSAP animation
-        Object.defineProperty(resultDiv, 'textContent', {
-            set: function(value) {
-                originalSetTextContent.call(this, value);
-                if (value) {
-                    gsap.fromTo(this,
-                        { opacity: 0, y: 20, scale: 0.9 },
-                        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.7)' }
-                    );
-                } else {
-                    gsap.to(this, { opacity: 0, y: -10, duration: 0.3 });
-                }
-            },
-            get: function() {
-                return originalSetTextContent.call(this);
-            }
-        });
-
-
-        // --- Report List Item Animations (on scroll) ---
-        gsap.utils.toArray('.report-item').forEach((item, i) => {
-            gsap.from(item, {
-                opacity: 0,
-                y: 50,
-                scale: 0.95,
-                duration: 0.8,
-                ease: 'power3.out',
-                scrollTrigger: {
-                    trigger: item,
-                    start: 'top 90%', // When the top of the item enters the viewport
-                    end: 'bottom 20%',
-                    toggleActions: 'play none none reverse', // Play on enter, reverse on leave back up
-                    // Stagger effect for items appearing on scroll
-                    onEnter: () => gsap.to(item, { opacity: 1, y: 0, scale: 1, duration: 0.8, delay: i * 0.08 }),
-                    onLeaveBack: () => gsap.to(item, { opacity: 0, y: 50, scale: 0.95, duration: 0.4 }),
-                },
-            });
-        });
-    };
-
-    // --- Check-in Script (Original functionality maintained) ---
+  <!-- Check-in Script -->
+  <script>
     const form = document.getElementById('checkin-form');
     const result = document.getElementById('result');
 
@@ -403,7 +223,7 @@
 
       if (!selected.includes('|')) {
         result.textContent = "⚠️ กรุณาเลือกชื่อให้ถูกต้อง";
-        result.className = 'mt-4 result-error'; // Apply error style
+        result.style.color = "red";
         return;
       }
 
@@ -420,18 +240,17 @@
 
         if (res.ok) {
           result.textContent = data.message;
-          result.className = 'mt-4 result-success'; // Apply success style
+          result.style.color = "green";
           form.reset();
-          // Reload the page to show updated report history
           window.location.reload();
         } else {
           result.textContent = data.error;
-          result.className = 'mt-4 result-error'; // Apply error style
+          result.style.color = "red";
         }
 
       } catch (err) {
         result.textContent = "เกิดข้อผิดพลาด: " + err.message;
-        result.className = 'mt-4 result-error'; // Apply error style
+        result.style.color = "red";
       }
     });
   </script>
