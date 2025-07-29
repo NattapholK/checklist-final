@@ -22,7 +22,7 @@
       align-items: flex-start; /* Align to top */
       min-height: 100vh;
       padding: 2rem;
-      box-sizing: border-box;
+      box-sizing: border;
     }
 
     /* Custom Scrollbar */
@@ -59,7 +59,7 @@
     #logo-animated {
       width: 120px; /* Slightly larger logo */
       height: auto;
-      margin-bottom: 2rem;
+      margin-bottom: 0.5rem; /* Reduced margin to bring text closer */
       border-radius: 0.75rem;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
       opacity: 0; /* Start hidden for GSAP animation */
@@ -93,6 +93,24 @@
         margin-bottom: 1.5rem;
         text-shadow: 0 0 10px rgba(106, 0, 255, 0.3);
     }
+
+    /* Logo Caption Style */
+    .logo-caption {
+        font-size: 1.25rem; /* Size for the text under the logo */
+        font-weight: 600;
+        color: #B0B0B0;
+        margin-bottom: 2rem; /* Spacing after the caption */
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        line-height: 1.2;
+    }
+    .logo-caption span {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
 
     /* Form Elements */
     select, input[type="email"] {
@@ -246,7 +264,10 @@
 
   <div class="container">
     <!-- Logo - Ensure the path is correct for your static files -->
-    <img src="/static/ImageDebsirin.png" alt="โรงเรียนเทพศิรินทร์" id="logo-animated" />
+    <img src="/static/ImageDebsirin.png" alt="โรงเรียนเทพศิรินทร์" id="logo-animated" class="mx-auto block" />
+
+    <!-- Logo Caption with Split Text Animation -->
+    <p id="logo-caption-animated" class="logo-caption"></p>
 
     <!-- Animated Title -->
     <h1 id="animated-title" class="split-text-gsap"></h1>
@@ -323,8 +344,10 @@
     window.onload = function() {
         // Initial animations for logo and titles
         gsap.to('#logo-animated', { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out' });
-        animateTextWithGSAP("animated-title", "Checklist Student M.6/2", 0.3); // Delay after logo
-        animateTextWithGSAP("animated-subtitle", "Attendance Report History", 0.6); // Delay after main title
+        // Animate the new logo caption text
+        animateTextWithGSAP("logo-caption-animated", "โรงเรียนเทพศิรินทร์", 0.2); // Delay slightly after logo
+        animateTextWithGSAP("animated-title", "Checklist Student M.6/2", 0.6); // Adjust delay for main title
+        animateTextWithGSAP("animated-subtitle", "Attendance Report History", 0.9); // Adjust delay for subtitle
 
         // --- Result Message Animation ---
         const resultDiv = document.getElementById('result');

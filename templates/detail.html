@@ -6,82 +6,166 @@
     <title>รายงานการเช็คชื่อสำหรับ {{ date }}</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for a modern, clean look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* Custom CSS for body and container */
+        /* Global Styles for Inter font */
         body {
-            font-family: 'Inter', sans-serif; /* ใช้ฟอนต์ Inter หรือตามที่คุณต้องการ */
-            background-color: #f0f2f5; /* สีพื้นหลังอ่อนๆ */
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            background: linear-gradient(to bottom right, #1A1A1A, #000000); /* Dark, subtle gradient background */
+            color: #E0E0E0; /* Light gray text for dark background */
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* จัดให้อยู่ด้านบนเพื่อการเลื่อนที่ดีขึ้น */
+            align-items: flex-start; /* Align to top */
             min-height: 100vh;
             padding: 2rem;
             box-sizing: border-box;
         }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6a00ff; /* Purple accent */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8a2be2; /* Lighter purple on hover */
+        }
+
+        /* Main Container Styling */
         .container {
-            background-color: #ffffff; /* สีพื้นหลังกล่องเป็นสีขาว */
-            padding: 2.5rem; /* ระยะห่างภายในกล่อง */
-            border-radius: 1rem; /* ขอบโค้งมน */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* เงาของกล่อง */
+            background: rgba(255, 255, 255, 0.05); /* Subtle translucent background */
+            backdrop-filter: blur(15px); /* Frosted glass effect */
+            -webkit-backdrop-filter: blur(15px); /* For Safari */
+            padding: 2.5rem;
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset; /* Deeper shadow with inner border */
             width: 100%;
-            max-width: 700px; /* ความกว้างสูงสุดของกล่อง */
+            max-width: 750px; /* Slightly wider for reports */
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
         }
+
+        /* H1 Title Styling */
         h1 {
-            color: #333; /* สีตัวอักษร */
-            margin-bottom: 1.5rem; /* ระยะห่างด้านล่าง */
-            font-weight: 700; /* ตัวหนา */
+            font-size: 2.5rem; /* Larger title */
+            font-weight: 800; /* Extra bold */
+            margin-bottom: 2rem;
+            color: transparent; /* Make text transparent to show gradient */
+            background-clip: text; /* Clip background to text shape */
+            background-image: linear-gradient(to right, #6A00FF, #8A2BE2); /* Purple gradient */
+            text-shadow: 0 0 15px rgba(106, 0, 255, 0.5); /* Subtle glow */
         }
+
+        h1 span {
+            color: transparent; /* Ensure span also uses gradient */
+            background-clip: text;
+            background-image: linear-gradient(to right, #4299e1, #63b3ed); /* Blue gradient for date */
+            text-shadow: 0 0 10px rgba(66, 153, 225, 0.4);
+        }
+
+        /* H2 Subtitle Styling */
         h2 {
-            color: #4a5568; /* สีตัวอักษร */
-            margin-top: 2rem; /* ระยะห่างด้านบน */
-            margin-bottom: 1rem; /* ระยะห่างด้านล่าง */
-            font-weight: 600; /* ตัวหนาปานกลาง */
+            font-size: 1.8rem; /* Subtitle size */
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
             text-align: left;
-            border-bottom: 1px solid #e2e8f0; /* เส้นคั่นด้านล่าง */
-            padding-bottom: 0.5rem; /* ระยะห่างด้านล่างเส้นคั่น */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+            padding-bottom: 0.75rem;
+            color: transparent; /* Make text transparent to show gradient */
+            background-clip: text; /* Clip background to text shape */
         }
+
+        /* Specific H2 colors for checked/absent */
+        h2.checked-title {
+            background-image: linear-gradient(to right, #4CAF50, #8BC34A); /* Green gradient */
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+        }
+        h2.absent-title {
+            background-image: linear-gradient(to right, #F44336, #FF5722); /* Red gradient */
+            text-shadow: 0 0 10px rgba(244, 67, 54, 0.4);
+        }
+
         ul {
-            list-style: none; /* ไม่มีจุดนำหน้า */
+            list-style: none;
             padding: 0;
             margin: 0;
             text-align: left;
         }
         li {
-            background-color: #edf2f7; /* สีพื้นหลังของแต่ละรายการ */
-            margin-bottom: 0.5rem; /* ระยะห่างระหว่างรายการ */
-            padding: 0.75rem 1.25rem; /* ระยะห่างภายในรายการ */
-            border-radius: 0.5rem; /* ขอบโค้งมน */
+            background-color: rgba(255, 255, 255, 0.08); /* Slightly lighter translucent background */
+            margin-bottom: 0.9rem;
+            padding: 1.2rem 1.8rem;
+            border-radius: 1rem; /* More rounded */
             display: flex;
             align-items: center;
-            font-size: 0.95rem;
+            font-size: 1.15rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
+
+        li:hover {
+            background-color: rgba(255, 255, 255, 0.15); /* More opaque on hover */
+            transform: translateY(-5px) scale(1.01); /* Lift more on hover */
+            box-shadow: 0 10px 25px rgba(106, 0, 255, 0.3); /* Purple glow shadow */
+        }
+
         li.checked {
-            background-color: #d4edda; /* สีเขียวอ่อนสำหรับนักเรียนที่มา */
-            color: #155724; /* สีเข้มสำหรับข้อความ */
+            background-color: rgba(76, 175, 80, 0.15); /* Subtle green for dark mode */
+            color: #A5D6A7; /* Lighter green text */
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
         }
+        li.checked:hover {
+            background-color: rgba(76, 175, 80, 0.25);
+            box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
+        }
+
         li.absent {
-            background-color: #f8d7da; /* สีแดงอ่อนสำหรับนักเรียนที่ขาด */
-            color: #721c24; /* สีเข้มสำหรับข้อความ */
+            background-color: rgba(244, 67, 54, 0.15); /* Subtle red for dark mode */
+            color: #EF9A9A; /* Lighter red text */
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.2);
         }
+        li.absent:hover {
+            background-color: rgba(244, 67, 54, 0.25);
+            box-shadow: 0 10px 25px rgba(244, 67, 54, 0.4);
+        }
+
         .status-icon {
-            margin-right: 0.75rem; /* ระยะห่างด้านขวาของไอคอน */
-            font-size: 1.2rem; /* ขนาดไอคอน */
+            margin-right: 1rem; /* Increased margin for icon */
+            font-size: 1.5rem; /* Larger icon size */
         }
         .back-button {
             display: inline-block;
-            margin-top: 2.5rem; /* ระยะห่างด้านบน */
-            background-color: #6366f1; /* สีปุ่ม */
-            color: white; /* สีตัวอักษรปุ่ม */
-            padding: 0.75rem 1.5rem; /* ระยะห่างภายในปุ่ม */
-            border-radius: 0.75rem; /* ขอบโค้งมน */
-            text-decoration: none; /* ไม่มีขีดเส้นใต้ */
-            font-weight: 600; /* ตัวหนาปานกลาง */
-            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out; /* แอนิเมชันเมื่อโฮเวอร์ */
+            margin-top: 2.5rem;
+            background: linear-gradient(to right, #6A00FF, #8A2BE2); /* Purple gradient */
+            color: white;
+            padding: 0.9rem 1.8rem; /* Larger padding */
+            border-radius: 0.75rem; /* More rounded */
+            text-decoration: none;
+            font-weight: 700; /* Bolder font */
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: none;
         }
         .back-button:hover {
-            background-color: #4f46e5; /* สีปุ่มเมื่อโฮเวอร์ */
-            transform: translateY(-2px); /* ยกขึ้นเล็กน้อยเมื่อโฮเวอร์ */
+            background: linear-gradient(to right, #8A2BE2, #6A00FF); /* Reverse gradient on hover */
+            transform: translateY(-3px) scale(1.02); /* Lift and scale slightly */
+            box-shadow: 0 8px 20px rgba(106, 0, 255, 0.4); /* Purple glow shadow */
+        }
+        .no-data-text {
+            color: #808080;
+            font-style: italic;
+            margin-top: 1.5rem;
         }
     </style>
 </head>
@@ -89,7 +173,7 @@
     <div class="container">
         <h1 class="text-3xl">รายงานการเช็คชื่อสำหรับ <span class="text-blue-600">{{ date }}</span></h1>
 
-        <h2 class="text-2xl text-green-700">🟢 มาแล้ว (นักเรียน {{ checked|length }} คน)</h2>
+        <h2 class="text-2xl checked-title">🟢 มาแล้ว (นักเรียน {{ checked|length }} คน)</h2>
         {% if checked %}
         <ul>
             {% for student in checked %}
@@ -100,10 +184,10 @@
             {% endfor %}
         </ul>
         {% else %}
-        <p class="text-gray-600">ยังไม่มีนักเรียนเช็คชื่อสำหรับวันนี้</p>
+        <p class="no-data-text">ยังไม่มีนักเรียนเช็คชื่อสำหรับวันนี้</p>
         {% endif %}
 
-        <h2 class="text-2xl text-red-700">🔴 ขาด (นักเรียน {{ absent|length }} คน)</h2>
+        <h2 class="text-2xl absent-title">🔴 ขาด (นักเรียน {{ absent|length }} คน)</h2>
         {% if absent %}
         <ul>
             {% for student in absent %}
@@ -114,7 +198,7 @@
             {% endfor %}
         </ul>
         {% else %}
-        <p class="text-gray-600">นักเรียนทุกคนเช็คชื่อครบแล้วสำหรับวันนี้!</p>
+        <p class="no-data-text">นักเรียนทุกคนเช็คชื่อครบแล้วสำหรับวันนี้!</p>
         {% endif %}
 
         <a href="/" class="back-button">← กลับไปที่รายงานทั้งหมด</a>
