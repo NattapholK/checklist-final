@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, jsonify
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import firebase_admin
 from firebase_admin import credentials, firestore
 import os
@@ -7,13 +8,10 @@ from dotenv import load_dotenv
 import requests
 import base64
 import json
+from apscheduler.schedulers.background import BackgroundScheduler
 from student import students
 
-# Scheduler
-from apscheduler.schedulers.background import BackgroundScheduler
-from zoneinfo import ZoneInfo
-
-# ====== Load ENV ======
+# ====== โหลดตัวแปรสิ่งแวดล้อม ======
 load_dotenv()
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
 FIREBASE_SERVICE_BASE64 = os.getenv("FIREBASE_SERVICE")
@@ -24,15 +22,15 @@ try:
     cred = credentials.Certificate(firebase_key_dict)
     firebase_admin.initialize_app(cred)
     db = firestore.client()
-    print("Firebase initialized successfully.")
+    print("✅ Firebase initialized.")
 except Exception as e:
-    print(f"Error initializing Firebase: {e}")
+    print(f"🔥 Firebase init error: {e}")
     exit(1)
 
 # ====== Flask Init ======
 app = Flask(__name__)
 
-# ====== ROUTES ======
+# ====== Routes ======
 @app.route("/")
 def index():
     date_list = []
@@ -42,7 +40,7 @@ def index():
             date_list.append(doc.id)
         date_list.sort(reverse=True)
     except Exception as e:
-        print(f"Error fetching attendance dates: {e}")
+        print(f"🔥 Error loading dates: {e}")
     return render_template("index.html", dates=date_list, students=students)
 
 @app.route("/report/<date_str>")
@@ -60,7 +58,7 @@ def report_detail(date_str):
             checked.append({"number": number, "name": name})
             checked_numbers.add(number)
 
-    absent = [{"number": i+1, "name": students[i]} for i in range(len(students)) if (i+1) not in checked_numbers]
+    absent = [{"number": i + 1, "name": students[i]} for i in range(len(students)) if (i + 1) not in checked_numbers]
     return render_template("detail.html", date=date_str, checked=checked, absent=absent)
 
 @app.route("/checkin", methods=["POST"])
@@ -70,7 +68,7 @@ def checkin():
     number = data.get("number")
 
     if not name or not number:
-        return jsonify({"error": "กรุณาระบุชื่อและเลขที่นักเรียนให้ครบถ้วน"}), 400
+        return jsonify({"error": "กรุณาระบุชื่อและเลขที่ให้ครบ"}), 400
 
     try:
         number = int(number)
@@ -80,12 +78,12 @@ def checkin():
     if not (1 <= number <= len(students)):
         return jsonify({"error": "เลขที่ไม่อยู่ในรายชื่อ"}), 400
 
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    date_str = datetime.now(ZoneInfo("Asia/Bangkok")).strftime("%Y-%m-%d")
     doc_ref = db.collection("attendances").document(date_str).collection("users").document(str(number))
 
     try:
         if doc_ref.get().exists:
-            return jsonify({"error": f"เช็คชื่อแล้ว"}), 409
+            return jsonify({"error": "เช็คชื่อไปแล้ว"}), 409
         db.collection("attendances").document(date_str).set({}, merge=True)
         doc_ref.set({
             "name": name,
@@ -94,10 +92,10 @@ def checkin():
         })
         return jsonify({"message": f"✅ เช็คชื่อสำเร็จ {number} - {name}"}), 200
     except Exception as e:
-        print(f"Checkin error: {e}")
+        print(f"🔥 Checkin error: {e}")
         return jsonify({"error": "เกิดข้อผิดพลาด"}), 500
 
-# ====== LINE FUNCTIONS ======
+# ====== LINE Messaging ======
 def reply_text(reply_token, text):
     headers = {
         "Authorization": f"Bearer {LINE_ACCESS_TOKEN}",
@@ -111,7 +109,7 @@ def reply_text(reply_token, text):
         r = requests.post("https://api.line.me/v2/bot/message/reply", headers=headers, json=payload)
         r.raise_for_status()
     except requests.exceptions.RequestException as e:
-        print(f"Line reply error: {e}")
+        print(f"🔥 Reply error: {e}")
 
 def send_line_broadcast(message):
     headers = {
@@ -128,7 +126,7 @@ def send_line_broadcast(message):
             r = requests.post("https://api.line.me/v2/bot/message/push", headers=headers, json=payload)
             r.raise_for_status()
     except Exception as e:
-        print(f"Broadcast error: {e}")
+        print(f"🔥 Broadcast error: {e}")
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -139,7 +137,7 @@ def webhook():
         reply_token = event.get("replyToken")
 
         if event["type"] == "follow":
-            reply_text(reply_token, "✅ สมัครรับรายงานเช็คชื่อเรียบร้อย")
+            reply_text(reply_token, "✅ สมัครรับรายงานเรียบร้อย")
             db.collection("recipients").document(user_id).set({"joined_at": firestore.SERVER_TIMESTAMP})
 
         elif event["type"] == "unfollow":
@@ -148,54 +146,53 @@ def webhook():
         elif event["type"] == "message" and event["message"]["type"] == "text":
             text = event["message"]["text"].lower()
             if "เช็คชื่อ" in text:
-                reply_text(reply_token, "โปรดใช้ระบบเช็คชื่อผ่านเว็บไซต์")
+                reply_text(reply_token, "กรุณาเช็คชื่อผ่านเว็บที่กำหนด")
             elif "รายงาน" in text:
-                reply_text(reply_token, "รายงานจะส่งเวลา 8:30 น. ทุกวัน")
+                reply_text(reply_token, "รายงานจะถูกส่งอัตโนมัติทุกวัน 8:30 น.")
             else:
-                reply_text(reply_token, "ระบบนี้ใช้สำหรับส่งรายงานเท่านั้น")
+                reply_text(reply_token, "ระบบนี้ใช้ส่งรายงานเช็คชื่อเท่านั้น")
     return "OK"
 
-# ====== SCHEDULED REPORT JOB ======
+# ====== รายงานเช็คชื่อแบบตั้งเวลา (ใช้เวลาประเทศไทย) ======
 def schedule_attendance_report():
-    now = datetime.now(ZoneInfo('Asia/Bangkok'))
-    date_str = now.strftime("%Y-%m-%d")
-    report_time = now.strftime("%H:%M")
+    now_bkk = datetime.now(ZoneInfo("Asia/Bangkok"))
+    date_str = now_bkk.strftime("%Y-%m-%d")
+    time_now = now_bkk.strftime("%H:%M")
 
     users_ref = db.collection("attendances").document(date_str).collection("users")
+    checked = []
     checked_numbers = set()
-    checked_names = []
 
     try:
-        docs = users_ref.stream()
-        for doc in docs:
+        for doc in users_ref.stream():
             data = doc.to_dict()
             if data.get("number") and data.get("name"):
                 checked_numbers.add(data["number"])
-                checked_names.append(data["name"])
+                checked.append(data["name"])
 
-        report = f"📋 รายงานเช็คชื่อ ตัดเวลา {report_time}\n"
+        report = f"📋 รายงานเช็คชื่อ ตัดเวลา {time_now}\n"
         report += f"📅 วันที่: {date_str}\n"
         report += f"🟢 มาแล้ว: {len(checked_numbers)} คน\n"
-        for name in sorted(checked_names):
+        for name in sorted(checked):
             report += f"✅ {name}\n"
 
-        absent_names = [students[i-1] for i in range(1, len(students)+1) if i not in checked_numbers]
-        report += f"🔴 ขาด: {len(absent_names)} คน\n"
-        for name in sorted(absent_names):
+        absent = [students[i - 1] for i in range(1, len(students) + 1) if i not in checked_numbers]
+        report += f"🔴 ขาด: {len(absent)} คน\n"
+        for name in sorted(absent):
             report += f"❌ {name}\n"
 
         send_line_broadcast(report)
-        print("[Scheduler] Sent report successfully.")
+        print("📤 รายงานเช็คชื่อส่งแล้ว")
     except Exception as e:
-        print(f"[Scheduler] Error: {e}")
+        print(f"🔥 Scheduler error: {e}")
 
-# ====== START SCHEDULER ======
-scheduler = BackgroundScheduler(timezone=ZoneInfo('Asia/Bangkok'))
+# ====== ตั้ง Scheduler เวลาไทย ======
+scheduler = BackgroundScheduler(timezone=ZoneInfo("Asia/Bangkok"))
 scheduler.add_job(schedule_attendance_report, 'cron', hour=8, minute=30)
 scheduler.start()
-print("Scheduler started.")
+print("✅ Scheduler started")
 
-# ====== FLASK RUN ======
+# ====== Run App ======
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port)
