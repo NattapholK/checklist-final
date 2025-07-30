@@ -5,10 +5,10 @@ from firebase_admin import credentials, firestore
 import os
 from dotenv import load_dotenv
 import requests
-from apscheduler.schedulers.blocking import BlockingScheduler # Use BlockingScheduler for a standalone script
+from apscheduler.schedulers.blocking import BlockingScheduler
 import base64
 import json
-import pytz #
+from zoneinfo import ZoneInfo # <-- เปลี่ยนมาใช้ library มาตรฐาน
 
 # Import students list - assuming 'student.py' exists and contains a 'students' list
 from student import students
@@ -27,10 +27,7 @@ try:
     print("Firebase initialized successfully for scheduler.")
 except Exception as e:
     print(f"Error initializing Firebase for scheduler: {e}")
-    exit(1) # Critical for scheduler to exit if Firebase fails
-
-# --- Define Timezone for Bangkok ---
-bkk_timezone = pytz.timezone('Asia/Bangkok') # <-- กำหนด Timezone
+    exit(1)
 
 # --- LINE Messaging Functions (copied from app.py, as this script runs independently) ---
 
@@ -69,8 +66,8 @@ def send_attendance_report():
     """
     print("Generating attendance report from scheduler...")
     
-    # <-- เปลี่ยนมาใช้เวลาของกรุงเทพฯ สำหรับวันที่และเวลาในรายงาน
-    now_bkk = datetime.now(bkk_timezone)
+    # <-- เปลี่ยนมาใช้เวลาของกรุงเทพฯ ด้วย ZoneInfo
+    now_bkk = datetime.now(ZoneInfo('Asia/Bangkok'))
     date_str = now_bkk.strftime("%Y-%m-%d")
     report_time = now_bkk.strftime("%H:%M")
     
@@ -92,8 +89,8 @@ def send_attendance_report():
         
         checked_names.sort()
 
-        report = f"📋 รายงานเช็คชื่อ ตัดเวลา {report_time}\n" # <-- ใช้ report_time ที่เป็นเวลาไทย
-        report += f"📅 วันที่: {date_str}\n" # <-- ใช้ date_str ที่เป็นวันที่ไทย
+        report = f"📋 รายงานเช็คชื่อ ตัดเวลา {report_time}\n"
+        report += f"📅 วันที่: {date_str}\n"
         report += f"🟢 มาแล้ว: {len(checked_numbers)} คน\n"
         for name in checked_names:
             report += f"✅ {name}\n"
@@ -117,14 +114,11 @@ def send_attendance_report():
 # --- Scheduler Setup for Standalone Script ---
 if __name__ == "__main__":
     print("Starting scheduler job...")
-    scheduler = BlockingScheduler()
+    scheduler = BlockingScheduler(timezone=ZoneInfo('Asia/Bangkok')) # <-- ระบุ timezone ที่นี่
     
-    # <-- ระบุ timezone สำหรับ cron job เพื่อให้ทำงานตามเวลาไทย
-    scheduler.add_job(send_attendance_report, 'cron', hour=8, minute=30, timezone=bkk_timezone)
+    # ตั้งเวลาให้ทำงานตอน 8:30 น. ตามเวลา Timezone ที่กำหนดไว้ด้านบน
+    scheduler.add_job(send_attendance_report, 'cron', hour=8, minute=30)
     
-    # You can also add an initial run for testing or immediate execution
-    # scheduler.add_job(send_attendance_report) # Uncomment to run immediately on startup
-
     try:
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
